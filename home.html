@@ -5,146 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claude Artifacts Hub</title>
   <base target="_top">
-  <?!= include('stylesheet'); ?>
+  <?!= include('styles'); ?>
 </head>
 <body>
-  <!-- Site Header -->
-  <header class="site-header">
-    <div class="header-container">
-      <div class="header-brand">
-        <div class="logo">
-          <span class="logo-icon">🎨</span>
-          <h1 class="site-title">Claude Artifacts Hub</h1>
+  <?!= include('header'); ?>
+  
+  <main class="container">
+    <div class="artifacts-grid">
+      <? const artifacts = getArtifacts(); ?>
+      <? for (let i = 0; i < artifacts.length; i++) { ?>
+        <div class="artifact-tile" data-id="<?= artifacts[i].id ?>">
+          <div class="artifact-preview">
+            <img src="<?= artifacts[i].preview ?>" alt="<?= artifacts[i].title ?>" class="preview-img">
+            <span class="artifact-type"><?= artifacts[i].type ?></span>
+          </div>
+          <div class="artifact-content">
+            <h3 class="artifact-title"><?= artifacts[i].title ?></h3>
+            <p class="artifact-description"><?= artifacts[i].description ?></p>
+          </div>
         </div>
-        <p class="site-tagline">Discover and share AI-generated creations</p>
-      </div>
-      <div class="header-actions">
-        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme">
-          <span class="theme-icon light-icon">☀️</span>
-          <span class="theme-icon dark-icon">🌙</span>
-        </button>
-      </div>
+      <? } ?>
     </div>
-  </header>
+  </main>
 
-  <div class="container">
-    <!-- Artifacts -->
-    <div class="glass-card">
-      <h2>Artifacts</h2>
-      <div id="artifacts-grid" class="artifacts-grid">
-        <div class="loading">
-          <div class="spinner"></div>
-          Loading artifacts...
-        </div>
-      </div>
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <iframe id="modal-iframe" class="modal-iframe"></iframe>
     </div>
   </div>
 
-
   <script>
-    // Load artifacts on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      loadArtifacts();
-      initThemeToggle();
+    // Theme toggle
+    const theme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', theme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
     });
 
-    function loadArtifacts() {
-      google.script.run
-        .withSuccessHandler(displayArtifacts)
-        .withFailureHandler(handleError)
-        .getArtifacts();
-    }
+    // Modal functionality
+    const modal = document.getElementById('modal');
+    const modalIframe = document.getElementById('modal-iframe');
+    const modalClose = document.querySelector('.modal-close');
 
-    function displayArtifacts(artifacts) {
-      const container = document.getElementById('artifacts-grid');
-      
-      if (artifacts.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <h3>No artifacts yet</h3>
-            <p>Check back soon for Claude artifacts!</p>
-          </div>
-        `;
-        return;
-      }
-      
-      container.innerHTML = artifacts.map(artifact => `
-        <div class="artifact-tile" onclick="viewArtifact('${artifact.id}')">
-          <div class="artifact-tile-preview">
-            <img src="${artifact.preview || 'https://via.placeholder.com/300x200/E3E6EB/6A849B?text=No+Preview'}" 
-                 alt="${escapeHtml(artifact.title)}" 
-                 class="artifact-preview-img"
-                 onerror="this.src='https://via.placeholder.com/300x200/E3E6EB/6A849B?text=No+Preview'">
-            <span class="artifact-tile-type ${artifact.type.toLowerCase()}">${escapeHtml(artifact.type)}</span>
-          </div>
-          <div class="artifact-tile-content">
-            <h3 class="artifact-tile-title">${escapeHtml(artifact.title)}</h3>
-            <p class="artifact-tile-description">${escapeHtml(artifact.description)}</p>
-            <div class="artifact-tile-tags">
-              ${artifact.tags ? artifact.tags.split(',').map(tag => 
-                `<span class="artifact-tile-tag">${escapeHtml(tag.trim())}</span>`
-              ).join('') : ''}
-            </div>
-          </div>
-          <div class="artifact-tile-footer">
-            <span class="artifact-tile-date">${formatDate(artifact.created_date)}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function handleError(error) {
-      const container = document.getElementById('artifacts-grid');
-      container.innerHTML = `
-        <div class="alert alert-error">
-          <strong>Error loading artifacts:</strong> ${error.message || 'Unknown error occurred'}
-          <br><br>
-          <button onclick="loadArtifacts()" class="btn btn-secondary">Try Again</button>
-        </div>
-      `;
-    }
-
-    function viewArtifact(id) {
-      window.location.href = `?page=artifact&id=${id}`;
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffTime = Math.abs(now - date);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 1) return 'Yesterday';
-      if (diffDays < 7) return `${diffDays} days ago`;
-      if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
-      
-      return date.toLocaleDateString();
-    }
-
-    // Theme toggle functionality
-    function initThemeToggle() {
-      const toggleBtn = document.getElementById('theme-toggle-btn');
-      const body = document.body;
-      
-      // Check for saved theme preference or default to light
-      const currentTheme = localStorage.getItem('theme') || 'light';
-      body.setAttribute('data-theme', currentTheme);
-      
-      toggleBtn.addEventListener('click', function() {
-        const currentTheme = body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
-        body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+    document.querySelectorAll('.artifact-tile').forEach(tile => {
+      tile.addEventListener('click', function() {
+        const artifactId = this.getAttribute('data-id');
+        modalIframe.src = '?page=view&id=' + artifactId;
+        modal.classList.add('active');
       });
-    }
+    });
 
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('active');
+      modalIframe.src = '';
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        modalIframe.src = '';
+      }
+    });
   </script>
 </body>
 </html>
