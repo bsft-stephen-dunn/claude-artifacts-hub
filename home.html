@@ -29,8 +29,8 @@
   </main>
 
   <!-- Modal -->
-  <div id="modal" class="modal">
-    <div class="modal-content">
+  <div id="modal" class="modal-overlay">
+    <div class="modal">
       <button class="modal-close">&times;</button>
       <iframe id="modal-iframe" class="modal-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
@@ -61,18 +61,28 @@
         const artifactId = this.getAttribute('data-id');
         modalIframe.src = scriptUrl + '?page=view&id=' + artifactId;
         modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
       });
     });
 
-    modalClose.addEventListener('click', () => {
+    function closeModal() {
       modal.classList.remove('active');
       modalIframe.src = '';
-    });
+      document.body.style.overflow = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
 
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
-        modal.classList.remove('active');
-        modalIframe.src = '';
+        closeModal();
+      }
+    });
+    
+    // ESC key to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
       }
     });
   </script>
