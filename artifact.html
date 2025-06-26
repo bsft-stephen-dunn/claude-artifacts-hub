@@ -245,6 +245,10 @@
     let currentArtifact = null;
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Apply theme
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.body.setAttribute('data-theme', currentTheme);
+      
       if (artifactId) {
         loadArtifact(artifactId);
       } else {
