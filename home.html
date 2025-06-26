@@ -52,11 +52,14 @@
     const modal = document.getElementById('modal');
     const modalIframe = document.getElementById('modal-iframe');
     const modalClose = document.querySelector('.modal-close');
+    
+    // Get the current script URL
+    const scriptUrl = window.location.origin + window.location.pathname;
 
     document.querySelectorAll('.artifact-tile').forEach(tile => {
       tile.addEventListener('click', function() {
         const artifactId = this.getAttribute('data-id');
-        modalIframe.src = '?page=view&id=' + artifactId;
+        modalIframe.src = scriptUrl + '?page=view&id=' + artifactId;
         modal.classList.add('active');
       });
     });
