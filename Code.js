@@ -36,8 +36,9 @@ function doGet(e) {
   }
   
   // Default to home page
-  return HtmlService.createTemplateFromFile('home')
-    .evaluate()
+  const template = HtmlService.createTemplateFromFile('home');
+  template.scriptUrl = ScriptApp.getService().getUrl();
+  return template.evaluate()
     .setTitle('Claude Artifacts Hub')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }

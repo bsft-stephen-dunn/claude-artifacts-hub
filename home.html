@@ -53,8 +53,8 @@
     const modalIframe = document.getElementById('modal-iframe');
     const modalClose = document.querySelector('.modal-close');
     
-    // Get the current script URL
-    const scriptUrl = window.location.origin + window.location.pathname;
+    // Use the server-provided script URL
+    const scriptUrl = '<?= scriptUrl ?>';
 
     document.querySelectorAll('.artifact-tile').forEach(tile => {
       tile.addEventListener('click', function() {
