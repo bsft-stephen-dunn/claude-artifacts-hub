@@ -20,9 +20,8 @@ function doGet(e) {
       return redirectToHome();
       
     case 'add':
-      return HtmlService.createTemplateFromFile('add').evaluate()
-        .setTitle('Add New Artifact')
-        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+      // Redirect to home since we now use a modal
+      return redirectToHome();
         
     case 'search':
       return HtmlService.createTemplateFromFile('search').evaluate()
