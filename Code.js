@@ -29,7 +29,9 @@ function doGet(e) {
     const artifact = ARTIFACTS.find(a => a.id === artifactId);
     if (artifact) {
       return HtmlService.createHtmlOutputFromFile(artifact.filename)
-        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+        .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+        .setTitle(artifact.title);
     }
   }
   
