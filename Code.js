@@ -20,13 +20,12 @@ function doGet(e) {
       return redirectToHome();
       
     case 'add':
-      // Redirect to home since we now use a modal
+      // Redirect to home since add functionality is removed
       return redirectToHome();
         
     case 'search':
-      return HtmlService.createTemplateFromFile('search').evaluate()
-        .setTitle('Search Artifacts')
-        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+      // Redirect to home since search functionality is removed
+      return redirectToHome();
         
     default:
       return redirectToHome();
@@ -163,4 +162,19 @@ function deleteArtifact(id) {
     console.error('Error deleting artifact:', e);
     return { success: false, error: e.toString() };
   }
+}
+
+// Manual function to add HTML artifacts - call this from the script editor
+function addHtmlArtifact(title, description, htmlContent, tags) {
+  const artifactData = {
+    title: title,
+    description: description || 'HTML Artifact',
+    type: 'HTML',
+    content: htmlContent,
+    tags: tags || ''
+  };
+  
+  const result = addArtifact(artifactData);
+  console.log('Add artifact result:', result);
+  return result;
 }
