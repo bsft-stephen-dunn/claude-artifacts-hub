@@ -8,29 +8,29 @@
   <?!= include('stylesheet'); ?>
 </head>
 <body>
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="header-brand">
+        <div class="logo">
+          <span class="logo-icon">🎨</span>
+          <h1 class="site-title">Claude Artifacts Hub</h1>
+        </div>
+        <p class="site-tagline">Discover and share AI-generated creations</p>
+      </div>
+      <div class="header-actions">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme">
+          <span class="theme-icon light-icon">☀️</span>
+          <span class="theme-icon dark-icon">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
   <div class="container">
-    <!-- Header -->
-    <header>
-      <h1>Claude Artifacts Hub</h1>
-      <p class="subtitle">Discover, share, and collaborate on Claude-generated artifacts with your team</p>
-    </header>
-
-    <!-- Navigation -->
-    <nav class="nav">
-      <a href="?" class="nav-link active">🏠 Home</a>
-    </nav>
-
     <!-- Artifacts -->
     <div class="glass-card">
-      <div class="artifacts-header">
-        <h2>Artifacts</h2>
-        <div class="theme-toggle">
-          <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme">
-            <span class="theme-icon light-icon">☀️</span>
-            <span class="theme-icon dark-icon">🌙</span>
-          </button>
-        </div>
-      </div>
+      <h2>Artifacts</h2>
       <div id="artifacts-grid" class="artifacts-grid">
         <div class="loading">
           <div class="spinner"></div>
@@ -70,7 +70,11 @@
       
       container.innerHTML = artifacts.map(artifact => `
         <div class="artifact-tile" onclick="viewArtifact('${artifact.id}')">
-          <div class="artifact-tile-header">
+          <div class="artifact-tile-preview">
+            <img src="${artifact.preview || 'https://via.placeholder.com/300x200/E3E6EB/6A849B?text=No+Preview'}" 
+                 alt="${escapeHtml(artifact.title)}" 
+                 class="artifact-preview-img"
+                 onerror="this.src='https://via.placeholder.com/300x200/E3E6EB/6A849B?text=No+Preview'">
             <span class="artifact-tile-type ${artifact.type.toLowerCase()}">${escapeHtml(artifact.type)}</span>
           </div>
           <div class="artifact-tile-content">

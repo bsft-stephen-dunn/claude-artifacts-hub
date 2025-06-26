@@ -1,27 +1,31 @@
 // Code.gs - Main Google Apps Script file
-// Artifacts are now stored in-memory as a static array
+// Artifacts are stored as separate HTML files
 
-// Function to get Rails graph HTML content
-function getRailsGraphContent() {
-  try {
-    return HtmlService.createHtmlOutputFromFile('rails_graph').getContent();
-  } catch(e) {
-    // Fallback if file not found
-    return '<h1>Rails Database Visualization</h1><p>Content loading...</p>';
-  }
-}
-
-// Static array of artifacts - add new artifacts here
-const ARTIFACTS = [
+// Artifact metadata - each artifact should have a corresponding HTML file
+const ARTIFACTS_METADATA = [
   {
     id: '1',
     title: 'Rails Database Force-Directed Graph',
     description: 'Interactive visualization of Rails database relationships using D3.js force-directed graph',
     type: 'HTML',
+    filename: 'rails_graph',
     tags: 'rails, database, visualization, d3js, graph',
+    preview: 'https://via.placeholder.com/300x200/2790FF/FFFFFF?text=Rails+Graph',
     created_by: 'admin@example.com',
     created_date: new Date('2024-01-01'),
     updated_date: new Date('2024-01-01')
+  },
+  {
+    id: '2',
+    title: 'Animated Analog Clock',
+    description: 'Beautiful animated clock with both analog and digital time display',
+    type: 'HTML',
+    filename: 'clock_animation',
+    tags: 'animation, clock, time, css, javascript',
+    preview: 'https://via.placeholder.com/300x200/667eea/FFFFFF?text=Animated+Clock',
+    created_by: 'admin@example.com',
+    created_date: new Date('2024-01-15'),
+    updated_date: new Date('2024-01-15')
   }
 ];
 
@@ -62,28 +66,35 @@ function include(filename) {
 
 // API Functions for artifact management
 function getArtifacts() {
-  // Add content dynamically when requested
-  return ARTIFACTS.map(artifact => {
-    if (artifact.id === '1' && !artifact.content) {
-      artifact.content = getRailsGraphContent();
-    }
-    return artifact;
-  });
+  // Return only metadata, not content
+  return ARTIFACTS_METADATA;
 }
 
 function getArtifact(id) {
-  const artifact = ARTIFACTS.find(a => a.id === id);
-  if (artifact && artifact.id === '1' && !artifact.content) {
-    artifact.content = getRailsGraphContent();
+  const metadata = ARTIFACTS_METADATA.find(a => a.id === id);
+  if (!metadata) return null;
+  
+  // Load content from file when requested
+  try {
+    const content = HtmlService.createHtmlOutputFromFile(metadata.filename).getContent();
+    return {
+      ...metadata,
+      content: content
+    };
+  } catch(e) {
+    console.error('Error loading artifact content:', e);
+    return {
+      ...metadata,
+      content: '<p>Error loading content</p>'
+    };
   }
-  return artifact || null;
 }
 
 function searchArtifacts(query) {
-  if (!query) return getArtifacts();
+  if (!query) return ARTIFACTS_METADATA;
   
   const lowerQuery = query.toLowerCase();
-  return getArtifacts().filter(artifact => 
+  return ARTIFACTS_METADATA.filter(artifact => 
     artifact.title.toLowerCase().includes(lowerQuery) ||
     artifact.description.toLowerCase().includes(lowerQuery) ||
     artifact.tags.toLowerCase().includes(lowerQuery) ||
