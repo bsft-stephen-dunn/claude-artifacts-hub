@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Artifact - Claude Artifacts Hub</title>
+  <base target="_top">
+  <?!= include('stylesheet'); ?>
+</head>
+<body>
+  <div class="container">
+    <!-- Navigation -->
+    <nav class="nav">
+      <a href="?" class="nav-link">🏠 Home</a>
+      <a href="?page=add" class="nav-link active">➕ Add Artifact</a>
+      <a href="?page=search" class="nav-link">🔍 Search</a>
+    </nav>
+
+    <!-- Header -->
+    <div class="glass-card">
+      <h1>Add New Artifact</h1>
+      <p class="subtitle">Share your Claude-generated content with the team</p>
+    </div>
+
+    <!-- Add Form -->
+    <div class="glass-card">
+      <form id="add-artifact-form">
+        <div class="form-group">
+          <label for="title" class="form-label">Title <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title" 
+            class="form-input" 
+            placeholder="Give your artifact a descriptive title"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="description" class="form-label">Description <span class="required">*</span></label>
+          <textarea 
+            id="description" 
+            name="description" 
+            class="form-textarea" 
+            rows="3"
+            placeholder="Briefly describe what this artifact does or contains"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="type" class="form-label">Type <span class="required">*</span></label>
+          <select id="type" name="type" class="form-select" required>
+            <option value="">Select artifact type</option>
+            <option value="HTML/CSS">HTML/CSS</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="React">React</option>
+            <option value="Python">Python</option>
+            <option value="Data Analysis">Data Analysis</option>
+            <option value="Document">Document</option>
+            <option value="API/Backend">API/Backend</option>
+            <option value="Design">Design</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="content" class="form-label">Content <span class="required">*</span></label>
+          <textarea 
+            id="content" 
+            name="content" 
+            class="form-textarea" 
+            rows="12"
+            placeholder="Paste the artifact content here (code, text, etc.)"
+            required
+            style="font-family: 'Courier New', monospace; font-size: 0.875rem;"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="tags" class="form-label">Tags</label>
+          <input 
+            type="text" 
+            id="tags" 
+            name="tags" 
+            class="form-input" 
+            placeholder="Comma-separated tags (e.g., frontend, utility, dashboard)"
+          >
+          <div class="form-help">Add tags to help others find your artifact</div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            <span id="submit-text">Add Artifact</span>
+            <span id="submit-loading" style="display: none;">
+              <div class="spinner" style="display: inline-block; width: 16px; height: 16px;"></div>
+              Adding...
+            </span>
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="window.location.href='?'">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Guidelines -->
+    <div class="glass-card">
+      <h2>Sharing Guidelines</h2>
+      <div style="color: var(--charcoal); line-height: 1.6;">
+        <p><strong>✅ Best practices:</strong></p>
+        <ul style="margin: 0.5rem 0 1rem 1.5rem;">
+          <li>Use clear, descriptive titles that explain the artifact's purpose</li>
+          <li>Include relevant implementation details in the description</li>
+          <li>Choose the most appropriate type for better organization</li>
+          <li>Add specific tags to improve discoverability</li>
+          <li>Include comments in code artifacts when helpful</li>
+        </ul>
+        
+        <p><strong>⚠️ Please avoid:</strong></p>
+        <ul style="margin: 0.5rem 0 0 1.5rem;">
+          <li>Sharing sensitive or confidential information</li>
+          <li>Including API keys, passwords, or credentials</li>
+          <li>Uploading incomplete or broken code</li>
+          <li>Using generic titles like "Test" or "Demo"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('add-artifact-form');
+      
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate form
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        
+        // Get form data
+        const formData = {
+          title: document.getElementById('title').value.trim(),
+          description: document.getElementById('description').value.trim(),
+          type: document.getElementById('type').value,
+          content: document.getElementById('content').value.trim(),
+          tags: document.getElementById('tags').value.trim()
+        };
+        
+        // Show loading state
+        const submitBtn = document.getElementById('submit-btn');
+        const submitText = document.getElementById('submit-text');
+        const submitLoading = document.getElementById('submit-loading');
+        
+        submitBtn.disabled = true;
+        submitText.style.display = 'none';
+        submitLoading.style.display = 'inline';
+        
+        // Submit to Google Apps Script
+        google.script.run
+          .withSuccessHandler(handleSuccess)
+          .withFailureHandler(handleError)
+          .addArtifact(formData);
+      });
+    });
+    
+    function handleSuccess(result) {
+      if (result.success) {
+        // Show success message
+        showNotification('Artifact added successfully!', 'success');
+        
+        // Redirect to artifact page after a short delay
+        setTimeout(() => {
+          window.location.href = `?page=artifact&id=${result.id}`;
+        }, 1500);
+      } else {
+        handleError(result.error || 'Failed to add artifact');
+      }
+    }
+    
+    function handleError(error) {
+      // Reset button state
+      const submitBtn = document.getElementById('submit-btn');
+      const submitText = document.getElementById('submit-text');
+      const submitLoading = document.getElementById('submit-loading');
+      
+      submitBtn.disabled = false;
+      submitText.style.display = 'inline';
+      submitLoading.style.display = 'none';
+      
+      // Show error message
+      showNotification(`Error: ${error.message || error}`, 'error');
+    }
+    
+    function showNotification(message, type) {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type}`;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        max-width: 400px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+      `;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      // Remove after 5 seconds
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      }, 5000);
+    }
+    
+    // Auto-resize textarea
+    const contentTextarea = document.getElementById('content');
+    contentTextarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        document.getElementById('add-artifact-form').dispatchEvent(new Event('submit'));
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        window.location.href = '?';
+      }
+    });
+  </script>
+
+  <style>
+    /* Additional styles for the form */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--gunmetal);
+    }
+    
+    .required {
+      color: #ef4444;
+    }
+    
+    .form-help {
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      color: var(--slate-gray);
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--light-gray);
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  </style>
+</body>
+</html>

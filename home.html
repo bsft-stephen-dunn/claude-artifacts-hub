@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Artifacts Hub</title>
+  <base target="_top">
+  <?!= include('stylesheet'); ?>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>Claude Artifacts Hub</h1>
+      <p class="subtitle">Discover, share, and collaborate on Claude-generated artifacts with your team</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+      <a href="?" class="nav-link active">🏠 Home</a>
+      <a href="?page=add" class="nav-link">➕ Add Artifact</a>
+      <a href="?page=search" class="nav-link">🔍 Search</a>
+    </nav>
+
+    <!-- Quick Stats -->
+    <div class="glass-card">
+      <h2>Quick Overview</h2>
+      <div id="stats-container">
+        <div class="loading">
+          <div class="spinner"></div>
+          Loading artifacts...
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Artifacts -->
+    <div class="glass-card">
+      <h2>Recent Artifacts</h2>
+      <div id="artifacts-container">
+        <div class="loading">
+          <div class="spinner"></div>
+          Loading recent artifacts...
+        </div>
+      </div>
+    </div>
+
+    <!-- Getting Started -->
+    <div class="glass-card">
+      <h2>Getting Started</h2>
+      <p>Welcome to your team's Claude Artifacts Hub! Here you can:</p>
+      <ul style="margin: 1rem 0; padding-left: 1.5rem; color: var(--charcoal);">
+        <li>📝 <strong>Share artifacts</strong> - Upload and organize Claude-generated content</li>
+        <li>🔍 <strong>Discover work</strong> - Find artifacts created by your teammates</li>
+        <li>🏷️ <strong>Organize with tags</strong> - Categorize artifacts for easy discovery</li>
+        <li>💬 <strong>Collaborate</strong> - Build upon each other's work</li>
+      </ul>
+      <a href="?page=add" class="btn btn-primary">Add Your First Artifact</a>
+    </div>
+  </div>
+
+  <script>
+    // Load artifacts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadArtifacts();
+      loadStats();
+    });
+
+    function loadArtifacts() {
+      google.script.run
+        .withSuccessHandler(displayArtifacts)
+        .withFailureHandler(handleError)
+        .getArtifacts();
+    }
+
+    function loadStats() {
+      google.script.run
+        .withSuccessHandler(displayStats)
+        .withFailureHandler(handleStatsError)
+        .getArtifacts();
+    }
+
+    function displayStats(artifacts) {
+      const statsContainer = document.getElementById('stats-container');
+      const totalArtifacts = artifacts.length;
+      const uniqueAuthors = new Set(artifacts.map(a => a.created_by)).size;
+      const recentArtifacts = artifacts.filter(a => {
+        const createdDate = new Date(a.created_date);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return createdDate > weekAgo;
+      }).length;
+
+      const typeCount = artifacts.reduce((acc, artifact) => {
+        acc[artifact.type] = (acc[artifact.type] || 0) + 1;
+        return acc;
+      }, {});
+
+      const mostPopularType = Object.keys(typeCount).reduce((a, b) => 
+        typeCount[a] > typeCount[b] ? a : b, 'N/A');
+
+      statsContainer.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
+          <div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--dodger-blue);">${totalArtifacts}</div>
+            <div style="color: var(--slate-gray); font-size: 0.9rem;">Total Artifacts</div>
+          </div>
+          <div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--electric-violet);">${uniqueAuthors}</div>
+            <div style="color: var(--slate-gray); font-size: 0.9rem;">Contributors</div>
+          </div>
+          <div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--ultramarine);">${recentArtifacts}</div>
+            <div style="color: var(--slate-gray); font-size: 0.9rem;">This Week</div>
+          </div>
+          <div>
+            <div style="font-size: 1.2rem; font-weight: 600; color: var(--denim);">${mostPopularType}</div>
+            <div style="color: var(--slate-gray); font-size: 0.9rem;">Popular Type</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleStatsError(error) {
+      const statsContainer = document.getElementById('stats-container');
+      statsContainer.innerHTML = `
+        <div class="alert alert-error">
+          Unable to load statistics. Please refresh the page.
+        </div>
+      `;
+    }
+
+    function displayArtifacts(artifacts) {
+      const container = document.getElementById('artifacts-container');
+      
+      if (artifacts.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--slate-gray);">
+            <h3>No artifacts yet</h3>
+            <p>Be the first to share a Claude artifact with your team!</p>
+            <a href="?page=add" class="btn btn-primary" style="margin-top: 1rem;">Add First Artifact</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Show most recent 6 artifacts
+      const recentArtifacts = artifacts.slice(0, 6);
+      
+      container.innerHTML = recentArtifacts.map(artifact => `
+        <div class="artifact-card" onclick="viewArtifact('${artifact.id}')">
+          <div class="artifact-title">${escapeHtml(artifact.title)}</div>
+          <div class="artifact-description">${escapeHtml(artifact.description)}</div>
+          <div class="artifact-tags">
+            ${artifact.tags ? artifact.tags.split(',').map(tag => 
+              `<span class="tag">${escapeHtml(tag.trim())}</span>`
+            ).join('') : ''}
+          </div>
+          <div class="artifact-meta">
+            <span class="artifact-type">${escapeHtml(artifact.type)}</span>
+            <span>by ${escapeHtml(artifact.created_by)} • ${formatDate(artifact.created_date)}</span>
+          </div>
+        </div>
+      `).join('');
+
+      if (artifacts.length > 6) {
+        container.innerHTML += `
+          <div style="text-align: center; margin-top: 1rem;">
+            <a href="?page=search" class="btn btn-secondary">View All ${artifacts.length} Artifacts</a>
+          </div>
+        `;
+      }
+    }
+
+    function handleError(error) {
+      const container = document.getElementById('artifacts-container');
+      container.innerHTML = `
+        <div class="alert alert-error">
+          <strong>Error loading artifacts:</strong> ${error.message || 'Unknown error occurred'}
+          <br><br>
+          <button onclick="loadArtifacts()" class="btn btn-secondary">Try Again</button>
+        </div>
+      `;
+    }
+
+    function viewArtifact(id) {
+      window.location.href = `?page=artifact&id=${id}`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+      if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+      
+      return date.toLocaleDateString();
+    }
+
+    // Add keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'a' && e.ctrlKey) {
+        e.preventDefault();
+        window.location.href = '?page=add';
+      }
+      if (e.key === 's' && e.ctrlKey) {
+        e.preventDefault();
+        window.location.href = '?page=search';
+      }
+    });
+  </script>
+</body>
+</html>
