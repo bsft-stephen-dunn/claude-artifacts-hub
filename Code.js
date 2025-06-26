@@ -7,7 +7,7 @@ const ARTIFACTS = [
     title: 'Rails Database Force-Directed Graph',
     description: 'Interactive visualization of Rails database relationships using D3.js',
     type: 'HTML',
-    filename: 'rails_graph',
+    filename: 'rails_graph.html',
     preview: 'https://via.placeholder.com/300x180/2790FF/FFFFFF?text=Rails+Graph'
   },
   {
@@ -15,7 +15,7 @@ const ARTIFACTS = [
     title: 'Animated Analog Clock',
     description: 'Beautiful animated clock with analog and digital display',
     type: 'HTML',
-    filename: 'clock_animation',
+    filename: 'clock_animation.html',
     preview: 'https://via.placeholder.com/300x180/667eea/FFFFFF?text=Animated+Clock'
   }
 ];
