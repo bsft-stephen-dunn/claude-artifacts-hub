@@ -1,0 +1,108 @@
+<!-- Navigation Component -->
+<nav class="site-nav">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="<?= scriptUrl ?>" class="brand-link">
+        <span class="logo-icon">🎨</span>
+        <span class="brand-name">Claude Artifacts Hub</span>
+      </a>
+    </div>
+    
+    <ul class="nav-menu" id="navMenu">
+      <li class="nav-item">
+        <a href="<?= scriptUrl ?>" class="nav-link <?= currentPage === 'home' ? 'active' : '' ?>">
+          <span class="nav-icon">🏠</span>
+          <span>Home</span>
+        </a>
+      </li>
+      
+      <li class="nav-item dropdown">
+        <a href="#" class="nav-link dropdown-toggle <?= currentPage === 'category' ? 'active' : '' ?>" onclick="toggleDropdown(event)">
+          <span class="nav-icon">📁</span>
+          <span>Categories</span>
+          <span class="dropdown-arrow">▼</span>
+        </a>
+        <ul class="dropdown-menu" id="categoriesDropdown">
+          <li><a href="<?= scriptUrl ?>?page=category&category=all" class="dropdown-link">All Categories</a></li>
+          <li class="dropdown-divider"></li>
+          <? const categories = getCategories(); ?>
+          <? for (let i = 0; i < categories.length; i++) { ?>
+            <li>
+              <a href="<?= scriptUrl ?>?page=category&category=<?= categories[i].slug ?>" class="dropdown-link">
+                <?= categories[i].name ?> <span class="category-count">(<?= categories[i].count ?>)</span>
+              </a>
+            </li>
+          <? } ?>
+        </ul>
+      </li>
+      
+      <li class="nav-item">
+        <a href="<?= scriptUrl ?>?page=search" class="nav-link <?= currentPage === 'search' ? 'active' : '' ?>">
+          <span class="nav-icon">🔍</span>
+          <span>Search</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="<?= scriptUrl ?>?page=about" class="nav-link <?= currentPage === 'about' ? 'active' : '' ?>">
+          <span class="nav-icon">ℹ️</span>
+          <span>About</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="nav-actions">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon">🌓</span>
+      </button>
+      <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle menu" onclick="toggleMobileMenu()">
+        <span class="menu-icon">☰</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<script>
+  function toggleDropdown(event) {
+    event.preventDefault();
+    const dropdown = event.currentTarget.parentElement;
+    dropdown.classList.toggle('active');
+    
+    // Close other dropdowns
+    document.querySelectorAll('.nav-item.dropdown').forEach(item => {
+      if (item !== dropdown) {
+        item.classList.remove('active');
+      }
+    });
+  }
+  
+  function toggleMobileMenu() {
+    const navMenu = document.getElementById('navMenu');
+    const menuToggle = document.getElementById('mobile-menu-toggle');
+    navMenu.classList.toggle('active');
+    
+    // Update menu icon
+    const menuIcon = menuToggle.querySelector('.menu-icon');
+    menuIcon.textContent = navMenu.classList.contains('active') ? '✕' : '☰';
+  }
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('.nav-item.dropdown')) {
+      document.querySelectorAll('.nav-item.dropdown').forEach(item => {
+        item.classList.remove('active');
+      });
+    }
+  });
+  
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', function(event) {
+    const navMenu = document.getElementById('navMenu');
+    const mobileToggle = document.getElementById('mobile-menu-toggle');
+    
+    if (!event.target.closest('.nav-menu') && !event.target.closest('.mobile-menu-toggle')) {
+      navMenu.classList.remove('active');
+      mobileToggle.querySelector('.menu-icon').textContent = '☰';
+    }
+  });
+</script>

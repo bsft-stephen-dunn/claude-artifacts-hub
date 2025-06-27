@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search - Claude Artifacts Hub</title>
+  <base target="_top">
+  <?!= include('styles'); ?>
+</head>
+<body>
+  <?!= include('navigation'); ?>
+  
+  <main class="main-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>Search Artifacts</h1>
+        <p class="page-subtitle">Find the perfect artifact for your needs</p>
+      </div>
+      
+      <div class="search-container">
+        <form action="<?= scriptUrl ?>" method="get" class="search-form">
+          <input type="hidden" name="page" value="search">
+          <div class="search-input-group">
+            <input 
+              type="text" 
+              name="q" 
+              value="<?= query ?>" 
+              placeholder="Search by title, description, or type..." 
+              class="search-input"
+              autofocus
+            >
+            <button type="submit" class="search-button">
+              <span class="search-icon">🔍</span>
+              Search
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <? if (query) { ?>
+        <div class="search-results-header">
+          <h2>Search Results for "<?= query ?>"</h2>
+          <? const results = searchArtifacts(query); ?>
+          <p class="results-count"><?= results.length ?> artifact<?= results.length !== 1 ? 's' : '' ?> found</p>
+        </div>
+        
+        <div class="artifacts-grid">
+          <? for (let i = 0; i < results.length; i++) { ?>
+            <a href="<?= scriptUrl ?>?page=artifact&id=<?= results[i].id ?>" class="artifact-tile-link">
+              <div class="artifact-tile" data-id="<?= results[i].id ?>">
+                <div class="artifact-preview">
+                  <img src="<?= results[i].preview ?>" alt="<?= results[i].title ?>" class="preview-img">
+                  <span class="artifact-type"><?= results[i].type ?></span>
+                </div>
+                <div class="artifact-content">
+                  <h3 class="artifact-title"><?= results[i].title ?></h3>
+                  <p class="artifact-description"><?= results[i].description ?></p>
+                </div>
+              </div>
+            </a>
+          <? } ?>
+        </div>
+        
+        <? if (results.length === 0) { ?>
+          <div class="empty-state">
+            <p class="empty-icon">🔍</p>
+            <h2>No Results Found</h2>
+            <p>Try adjusting your search terms or <a href="<?= scriptUrl ?>">browse all artifacts</a>.</p>
+          </div>
+        <? } ?>
+      <? } ?>
+    </div>
+  </main>
+  
+  <style>
+    .search-container {
+      margin-bottom: 3rem;
+    }
+    
+    .search-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .search-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--border-radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(39, 144, 255, 0.1);
+    }
+    
+    .search-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-sm);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .search-button:hover {
+      background: #1a7dd4;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    
+    .search-icon {
+      font-size: 1.1rem;
+    }
+    
+    .search-results-header {
+      margin-bottom: 2rem;
+    }
+    
+    .search-results-header h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    
+    .results-count {
+      color: var(--text-secondary);
+    }
+    
+    @media (max-width: 768px) {
+      .search-input-group {
+        flex-direction: column;
+      }
+      
+      .search-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+
+  <script>
+    // Theme management
+    function getTheme() {
+      try {
+        return localStorage.getItem('theme') || 'light';
+      } catch (e) {
+        console.warn('localStorage not available:', e);
+        return 'light';
+      }
+    }
+    
+    function setTheme(theme) {
+      try {
+        localStorage.setItem('theme', theme);
+      } catch (e) {
+        console.warn('Could not save theme preference:', e);
+      }
+      document.body.setAttribute('data-theme', theme);
+    }
+    
+    // Initialize theme
+    setTheme(getTheme());
+    
+    // Theme toggle functionality
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    });
+  </script>
+</body>
+</html>

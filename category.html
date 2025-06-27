@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude Artifacts Hub</title>
+  <title><?= category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1) ?> - Claude Artifacts Hub</title>
   <base target="_top">
   <?!= include('styles'); ?>
 </head>
@@ -13,12 +13,12 @@
   <main class="main-content">
     <div class="container">
       <div class="page-header">
-        <h1>Artifact Gallery</h1>
-        <p class="page-subtitle">Explore and use interactive HTML artifacts created with Claude</p>
+        <h1><?= category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1) ?> Artifacts</h1>
+        <p class="page-subtitle">Browse artifacts in this category</p>
       </div>
       
       <div class="artifacts-grid">
-        <? const artifacts = getArtifacts(); ?>
+        <? const artifacts = getArtifactsByCategory(category); ?>
         <? for (let i = 0; i < artifacts.length; i++) { ?>
           <a href="<?= scriptUrl ?>?page=artifact&id=<?= artifacts[i].id ?>" class="artifact-tile-link">
             <div class="artifact-tile" data-id="<?= artifacts[i].id ?>">
@@ -38,8 +38,8 @@
       <? if (artifacts.length === 0) { ?>
         <div class="empty-state">
           <p class="empty-icon">📭</p>
-          <h2>No Artifacts Yet</h2>
-          <p>Start by creating your first artifact with Claude!</p>
+          <h2>No Artifacts in This Category</h2>
+          <p>Check out other categories or <a href="<?= scriptUrl ?>">view all artifacts</a>.</p>
         </div>
       <? } ?>
     </div>

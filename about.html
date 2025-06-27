@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - Claude Artifacts Hub</title>
+  <base target="_top">
+  <?!= include('styles'); ?>
+</head>
+<body>
+  <?!= include('navigation'); ?>
+  
+  <main class="main-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>About Claude Artifacts Hub</h1>
+        <p class="page-subtitle">A gallery for interactive HTML artifacts created with Claude</p>
+      </div>
+      
+      <div class="about-content">
+        <section class="about-section">
+          <h2>What is Claude Artifacts Hub?</h2>
+          <p>
+            Claude Artifacts Hub is a web application built with Google Apps Script that showcases 
+            interactive HTML artifacts created with Claude AI. It provides an elegant gallery interface 
+            for browsing, viewing, and sharing these artifacts.
+          </p>
+        </section>
+        
+        <section class="about-section">
+          <h2>Features</h2>
+          <ul class="feature-list">
+            <li>
+              <span class="feature-icon">🎨</span>
+              <div>
+                <h3>Beautiful Gallery</h3>
+                <p>Browse artifacts in a clean, tile-based layout</p>
+              </div>
+            </li>
+            <li>
+              <span class="feature-icon">📁</span>
+              <div>
+                <h3>Category Organization</h3>
+                <p>Filter artifacts by type to find what you need</p>
+              </div>
+            </li>
+            <li>
+              <span class="feature-icon">🔍</span>
+              <div>
+                <h3>Search Functionality</h3>
+                <p>Quickly find artifacts by title or description</p>
+              </div>
+            </li>
+            <li>
+              <span class="feature-icon">🌓</span>
+              <div>
+                <h3>Dark Mode</h3>
+                <p>Toggle between light and dark themes</p>
+              </div>
+            </li>
+            <li>
+              <span class="feature-icon">📱</span>
+              <div>
+                <h3>Responsive Design</h3>
+                <p>Works seamlessly on desktop and mobile devices</p>
+              </div>
+            </li>
+            <li>
+              <span class="feature-icon">🔗</span>
+              <div>
+                <h3>Shareable Links</h3>
+                <p>Each artifact has its own URL for easy sharing</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+        
+        <section class="about-section">
+          <h2>How to Use</h2>
+          <ol class="usage-steps">
+            <li>Browse the gallery on the home page</li>
+            <li>Click on any artifact to view its details</li>
+            <li>Use "Open Full Screen" to see the artifact in action</li>
+            <li>Copy the code to use it in your own projects</li>
+            <li>Share artifact links with others</li>
+          </ol>
+        </section>
+        
+        <section class="about-section">
+          <h2>Technology Stack</h2>
+          <div class="tech-grid">
+            <div class="tech-item">
+              <strong>Backend:</strong> Google Apps Script (V8 Runtime)
+            </div>
+            <div class="tech-item">
+              <strong>Frontend:</strong> Vanilla JavaScript
+            </div>
+            <div class="tech-item">
+              <strong>Styling:</strong> Pure CSS with Custom Properties
+            </div>
+            <div class="tech-item">
+              <strong>Deployment:</strong> CLASP & Google Cloud
+            </div>
+          </div>
+        </section>
+        
+        <section class="about-section">
+          <h2>Open Source</h2>
+          <p>
+            This project is open source and available on GitHub. Feel free to contribute, 
+            report issues, or fork it for your own use!
+          </p>
+          <div class="about-actions">
+            <a href="https://github.com/your-username/claude-artifacts-hub" class="btn btn-primary" target="_blank">
+              <span class="btn-icon">📦</span>
+              View on GitHub
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  
+  <style>
+    .about-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .about-section {
+      margin-bottom: 3rem;
+    }
+    
+    .about-section h2 {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+    
+    .about-section p {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      gap: 1.5rem;
+    }
+    
+    .feature-list li {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    
+    .feature-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    
+    .feature-list h3 {
+      margin-bottom: 0.25rem;
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+    
+    .feature-list p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+    
+    .usage-steps {
+      padding-left: 1.5rem;
+      line-height: 1.8;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+    
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .tech-item {
+      padding: 1rem;
+      background: var(--surface);
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--border);
+    }
+    
+    .about-actions {
+      margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .feature-list li {
+        gap: 0.75rem;
+      }
+      
+      .feature-icon {
+        font-size: 1.5rem;
+      }
+      
+      .tech-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script>
+    // Theme management
+    function getTheme() {
+      try {
+        return localStorage.getItem('theme') || 'light';
+      } catch (e) {
+        console.warn('localStorage not available:', e);
+        return 'light';
+      }
+    }
+    
+    function setTheme(theme) {
+      try {
+        localStorage.setItem('theme', theme);
+      } catch (e) {
+        console.warn('Could not save theme preference:', e);
+      }
+      document.body.setAttribute('data-theme', theme);
+    }
+    
+    // Initialize theme
+    setTheme(getTheme());
+    
+    // Theme toggle functionality
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    });
+  </script>
+</body>
+</html>

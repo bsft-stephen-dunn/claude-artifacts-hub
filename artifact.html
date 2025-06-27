@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><?= artifact.title ?> - Claude Artifacts Hub</title>
+  <base target="_top">
+  <?!= include('styles'); ?>
+</head>
+<body>
+  <?!= include('navigation'); ?>
+  
+  <main class="main-content">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="<?= scriptUrl ?>">Home</a></li>
+          <li><a href="<?= scriptUrl ?>?page=category&category=<?= artifact.type.toLowerCase().replace(/[^a-z]/g, '') ?>"><?= artifact.type ?></a></li>
+          <li aria-current="page"><?= artifact.title ?></li>
+        </ol>
+      </nav>
+      
+      <!-- Artifact Header -->
+      <div class="artifact-header">
+        <h1><?= artifact.title ?></h1>
+        <p class="artifact-description-full"><?= artifact.description ?></p>
+        
+        <div class="artifact-meta">
+          <span class="meta-item">
+            <span class="meta-icon">🏷️</span>
+            <span><?= artifact.type ?></span>
+          </span>
+          <span class="meta-item">
+            <span class="meta-icon">📅</span>
+            <span>Added <?= new Date().toLocaleDateString() ?></span>
+          </span>
+        </div>
+        
+        <div class="artifact-actions">
+          <a href="<?= scriptUrl ?>?page=view&id=<?= artifactId ?>" class="btn btn-primary" target="_blank">
+            <span class="btn-icon">🚀</span>
+            Open Full Screen
+          </a>
+          <button class="btn btn-secondary" onclick="copyCode()">
+            <span class="btn-icon">📋</span>
+            Copy Code
+          </button>
+          <button class="btn btn-secondary" onclick="downloadArtifact()">
+            <span class="btn-icon">💾</span>
+            Download
+          </button>
+        </div>
+      </div>
+      
+      <!-- Preview Section -->
+      <div class="artifact-preview-section">
+        <h2>Preview</h2>
+        <div class="preview-container">
+          <iframe 
+            src="<?= scriptUrl ?>?page=view&id=<?= artifactId ?>" 
+            class="preview-iframe"
+            sandbox="allow-scripts allow-same-origin"
+            loading="lazy">
+          </iframe>
+        </div>
+      </div>
+      
+      <!-- Code Section -->
+      <div class="artifact-code-section">
+        <div class="code-header">
+          <h2>Source Code</h2>
+          <button class="copy-btn" onclick="copyCode()">
+            <span class="copy-icon">📋</span>
+            Copy
+          </button>
+        </div>
+        <pre class="code-block"><code id="artifact-code">Loading...</code></pre>
+      </div>
+      
+      <!-- Usage Instructions -->
+      <div class="usage-section">
+        <h2>How to Use</h2>
+        <ol>
+          <li>Click "Open Full Screen" to view the artifact in a new tab</li>
+          <li>Click "Copy Code" to copy the source code</li>
+          <li>Save the code as an HTML file on your computer</li>
+          <li>Open the file in your web browser to use it locally</li>
+        </ol>
+        <p class="usage-tip">
+          <span class="tip-icon">💡</span>
+          <strong>Tip:</strong> You can also share the full screen link with others!
+        </p>
+      </div>
+      
+      <!-- Related Artifacts -->
+      <div class="related-section">
+        <h2>Related Artifacts</h2>
+        <div class="related-grid">
+          <? const allArtifacts = getArtifacts(); ?>
+          <? const related = allArtifacts.filter(a => a.id !== artifactId && a.type === artifact.type).slice(0, 3); ?>
+          <? if (related.length > 0) { ?>
+            <? for (let i = 0; i < related.length; i++) { ?>
+              <a href="<?= scriptUrl ?>?page=artifact&id=<?= related[i].id ?>" class="related-artifact">
+                <h4><?= related[i].title ?></h4>
+                <p><?= related[i].description ?></p>
+              </a>
+            <? } ?>
+          <? } else { ?>
+            <p class="no-related">No related artifacts found.</p>
+          <? } ?>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    // Theme management
+    function getTheme() {
+      try {
+        return localStorage.getItem('theme') || 'light';
+      } catch (e) {
+        console.warn('localStorage not available:', e);
+        return 'light';
+      }
+    }
+    
+    function setTheme(theme) {
+      try {
+        localStorage.setItem('theme', theme);
+      } catch (e) {
+        console.warn('Could not save theme preference:', e);
+      }
+      document.body.setAttribute('data-theme', theme);
+    }
+    
+    // Initialize theme
+    setTheme(getTheme());
+    
+    // Theme toggle functionality
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    });
+    
+    // Load artifact code
+    google.script.run
+      .withSuccessHandler(function(artifact) {
+        if (artifact) {
+          // For this example, we'll show the filename since we can't access file contents directly
+          document.getElementById('artifact-code').textContent = 
+            `<!-- ${artifact.title} -->\n<!-- File: ${artifact.filename} -->\n\n<!-- View the full screen version to see the complete code -->`;
+        }
+      })
+      .withFailureHandler(function(error) {
+        console.error('Error loading artifact:', error);
+        document.getElementById('artifact-code').textContent = 'Error loading code';
+      })
+      .getArtifact('<?= artifactId ?>');
+    
+    // Copy code function
+    function copyCode() {
+      const code = document.getElementById('artifact-code').textContent;
+      navigator.clipboard.writeText(code).then(function() {
+        // Update button to show success
+        const buttons = document.querySelectorAll('.copy-btn, .btn-secondary:nth-child(2)');
+        buttons.forEach(btn => {
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<span class="btn-icon">✅</span> Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      }).catch(function(err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy code. Please try selecting and copying manually.');
+      });
+    }
+    
+    // Download artifact
+    function downloadArtifact() {
+      const artifact = <?= JSON.stringify(artifact) ?>;
+      const filename = artifact.filename || `${artifact.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+      
+      // Create a download link
+      const a = document.createElement('a');
+      a.href = '<?= scriptUrl ?>?page=view&id=<?= artifactId ?>';
+      a.download = filename;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Show feedback
+      const btn = event.currentTarget;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="btn-icon">✅</span> Opening...';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'c') {
+          e.preventDefault();
+          copyCode();
+        } else if (e.key === 'd') {
+          e.preventDefault();
+          downloadArtifact();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
