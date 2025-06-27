@@ -7,14 +7,24 @@
 }
 
 :root {
+  /* Colors */
   --primary: #2790FF;
   --bg: #F8F9FC;
   --surface: #FFFFFF;
   --text: #2B3844;
   --text-secondary: #6A849B;
   --border: rgba(0, 0, 0, 0.1);
+  
+  /* Shadows */
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  
+  /* Spacing & Sizing */
+  --transition-speed: 0.3s;
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --max-content-width: 1200px;
 }
 
 [data-theme="dark"] {
@@ -32,7 +42,7 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 /* Header */
@@ -92,7 +102,7 @@ body {
 
 /* Container */
 .container {
-  max-width: 1200px;
+  max-width: var(--max-content-width);
   margin: 2rem auto;
   padding: 0 2rem;
 }
@@ -112,11 +122,13 @@ body {
   cursor: pointer;
   transition: all 0.3s;
   box-shadow: var(--shadow);
+  contain: layout style; /* Performance optimization */
 }
 
 .artifact-tile:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-hover);
+  will-change: transform, box-shadow; /* Optimize animations */
 }
 
 .artifact-preview {
@@ -229,6 +241,23 @@ body {
   height: 100%;
   border: none;
   background: white;
+}
+
+/* Loading state */
+.modal-overlay.loading .modal::after {
+  content: 'Loading...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 /* Responsive */

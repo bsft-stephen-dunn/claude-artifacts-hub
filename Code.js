@@ -20,9 +20,25 @@ const ARTIFACTS = [
   }
 ];
 
+/**
+ * Sanitizes input parameters to prevent injection attacks
+ * @param {string} input - The input string to sanitize
+ * @returns {string|null} Sanitized input or null
+ */
+function sanitizeInput(input) {
+  if (!input) return null;
+  // Only allow alphanumeric characters, hyphens, and underscores
+  return input.toString().replace(/[^a-zA-Z0-9-_]/g, '');
+}
+
+/**
+ * Handles HTTP GET requests for the web app
+ * @param {Object} e - Event object containing request parameters
+ * @returns {HtmlOutput} The appropriate HTML response
+ */
 function doGet(e) {
-  const page = e.parameter.page || 'home';
-  const artifactId = e.parameter.id;
+  const page = sanitizeInput(e.parameter.page) || 'home';
+  const artifactId = sanitizeInput(e.parameter.id);
   
   if (page === 'view' && artifactId) {
     // Serve artifact HTML directly
@@ -43,10 +59,19 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+/**
+ * Includes HTML content from another file
+ * @param {string} filename - Name of the file to include (without .html extension)
+ * @returns {string} HTML content as string
+ */
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
+/**
+ * Returns the array of artifacts for display
+ * @returns {Array} Array of artifact objects
+ */
 function getArtifacts() {
   return ARTIFACTS;
 }

@@ -1,0 +1,99 @@
+<script>
+  // Get server-provided script URL
+  const scriptUrl = '<?= scriptUrl ?>';
+  
+  // Theme management with error handling
+  function getTheme() {
+    try {
+      return localStorage.getItem('theme') || 'light';
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      return 'light';
+    }
+  }
+  
+  function setTheme(theme) {
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (e) {
+      console.warn('Could not save theme preference:', e);
+    }
+    document.body.setAttribute('data-theme', theme);
+  }
+  
+  // Initialize theme
+  setTheme(getTheme());
+  
+  // Theme toggle functionality
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+  });
+
+  // Modal functionality
+  const modal = document.getElementById('modal');
+  const modalIframe = document.getElementById('modal-iframe');
+  const modalClose = document.querySelector('.modal-close');
+  
+  // Add loading state management
+  function showModal(artifactId) {
+    modal.classList.add('active', 'loading');
+    modalIframe.src = scriptUrl + '?page=view&id=' + artifactId;
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeModal() {
+    modal.classList.remove('active', 'loading');
+    modalIframe.src = 'about:blank'; // Proper cleanup
+    document.body.style.overflow = '';
+  }
+  
+  // Handle iframe load complete
+  modalIframe.addEventListener('load', function() {
+    // Remove loading state when content is loaded
+    if (modal.classList.contains('active')) {
+      modal.classList.remove('loading');
+    }
+  });
+  
+  // Handle iframe errors
+  modalIframe.addEventListener('error', function() {
+    console.error('Failed to load artifact');
+    modal.classList.remove('loading');
+    // Could show error message to user here
+  });
+
+  // Tile click handlers
+  document.querySelectorAll('.artifact-tile').forEach(tile => {
+    tile.addEventListener('click', function() {
+      const artifactId = this.getAttribute('data-id');
+      if (artifactId) {
+        showModal(artifactId);
+      }
+    });
+  });
+
+  // Modal close handlers
+  modalClose.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+  
+  // ESC key to close modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeModal();
+    }
+  });
+  
+  // Handle page visibility change to cleanup resources
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && modal.classList.contains('active')) {
+      // Optionally pause any animations or timers in the iframe
+    }
+  });
+</script>
